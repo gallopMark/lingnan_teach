@@ -203,6 +203,10 @@ public class TeacherHomePageActivity extends BaseActivity implements View.OnClic
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
                 CourseMobileEntity entity = mCourses.get(position);
+                if (entity.getmTimePeriod() != null && entity.getmTimePeriod().getState() != null && entity.getmTimePeriod().getState().equals("未开始")) {
+                    showMaterialDialog("温馨提示", "课程尚未开放");
+                    return;
+                }
                 String courseId = entity.getId();
                 String courseTitle = entity.getTitle();
                 Intent intent = new Intent(context, TeacherCourseTabActivity.class);
@@ -216,15 +220,12 @@ public class TeacherHomePageActivity extends BaseActivity implements View.OnClic
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
                 WorkShopMobileEntity entity = mWorkshops.get(position);
-                if (entity != null) {
-                    String workshopId = entity.getId();
-                    String workshopTitle = entity.getTitle();
-                    Intent intent = new Intent(context, WorkshopHomePageActivity.class);
-                    intent.putExtra("workshopId", workshopId);
-                    intent.putExtra("workshopTitle", workshopTitle);
-                    startActivity(intent);
-                }
-
+                String workshopId = entity.getId();
+                String workshopTitle = entity.getTitle();
+                Intent intent = new Intent(context, WorkshopHomePageActivity.class);
+                intent.putExtra("workshopId", workshopId);
+                intent.putExtra("workshopTitle", workshopTitle);
+                startActivity(intent);
             }
         });
     }
