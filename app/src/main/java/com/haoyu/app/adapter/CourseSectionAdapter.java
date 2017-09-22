@@ -1,13 +1,22 @@
 package com.haoyu.app.adapter;
 
+import android.content.Context;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.SubscriptSpan;
+import android.text.style.SuperscriptSpan;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
 import com.haoyu.app.entity.CourseChildSectionEntity;
 import com.haoyu.app.entity.CourseSectionEntity;
 import com.haoyu.app.entity.MultiItemEntity;
 import com.haoyu.app.lingnan.teacher.R;
+import com.haoyu.app.utils.PixelFormat;
 
 import java.util.List;
 
@@ -18,10 +27,13 @@ import java.util.List;
  */
 public class CourseSectionAdapter extends BaseArrayRecyclerAdapter<MultiItemEntity> {
 
+    private Context context;
     private OnSectionClickListener onSectionClickListener;
+    private OnItemLongClickListener onItemLongClickListener;
 
-    public CourseSectionAdapter(List<MultiItemEntity> mDatas) {
+    public CourseSectionAdapter(Context context, List<MultiItemEntity> mDatas) {
         super(mDatas);
+        this.context = context;
     }
 
     @Override
@@ -41,19 +53,24 @@ public class CourseSectionAdapter extends BaseArrayRecyclerAdapter<MultiItemEnti
     public void onBindHoder(RecyclerHolder holder, MultiItemEntity item, final int position) {
         int viewType = holder.getItemViewType();
         if (viewType == 0) {
-            CourseSectionEntity sectionEntity = (CourseSectionEntity) item;
-            if (sectionEntity.getTitle() != null && sectionEntity.getTitle().trim().length() > 0)
-                holder.setText(R.id.course_title, sectionEntity.getTitle());
-            else
-                holder.setText(R.id.course_title, "无标题");
+            final CourseSectionEntity sectionEntity = (CourseSectionEntity) item;
+            final TextView tv_title = holder.obtainView(R.id.section_title);
+            setSpannedText(sectionEntity.getTitle(), tv_title);
+            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (onItemLongClickListener != null)
+                        onItemLongClickListener.onItemLongClick(tv_title, sectionEntity.getTitle());
+                    return false;
+                }
+            });
         } else {
             final CourseChildSectionEntity childEntity = (CourseChildSectionEntity) item;
+            LinearLayout ll_layout = holder.obtainView(R.id.ll_layout);
+            final TextView tv_title = holder.obtainView(R.id.tv_selection_title);
             ImageView ic_selection_state = holder.obtainView(R.id.ic_selection_state);
             ic_selection_state.setVisibility(View.GONE);
-            if (childEntity.getTitle() != null && childEntity.getTitle().trim().length() > 0)
-                holder.setText(R.id.tv_selection_title, childEntity.getTitle());
-            else
-                holder.setText(R.id.tv_selection_title, "无标题");
+            setSpannedText(childEntity.getTitle(), tv_title, ll_layout);
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -61,6 +78,74 @@ public class CourseSectionAdapter extends BaseArrayRecyclerAdapter<MultiItemEnti
                         onSectionClickListener.onSectionSelected(childEntity);
                 }
             });
+            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    if (onItemLongClickListener != null)
+                        onItemLongClickListener.onItemLongClick(tv_title, childEntity.getTitle());
+                    return false;
+                }
+            });
+        }
+    }
+
+    private void setSpannedText(String title, TextView tv) {
+        int left, top, right, bottom;
+        if (title == null || title.trim().length() == 0) {
+            left = right = PixelFormat.dp2px(context, 12);
+            top = bottom = PixelFormat.dp2px(context, 6);
+            tv.setPadding(left, top, right, bottom);
+            tv.setText("无标题");
+        } else {
+            Spanned spanned = Html.fromHtml(title);
+            SpannableString ss = new SpannableString(spanned);
+            if (title.contains("<sup>")) {
+                ss.setSpan(new SuperscriptSpan(), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                left = right = PixelFormat.dp2px(context, 12);
+                top = bottom = PixelFormat.dp2px(context, 2);
+                tv.setPadding(left, top, right, bottom);
+                tv.setText(ss);
+            } else if (title.contains("<sub>")) {
+                ss.setSpan(new SubscriptSpan(), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                left = right = PixelFormat.dp2px(context, 12);
+                top = bottom = PixelFormat.dp2px(context, 2);
+                tv.setPadding(left, top, right, bottom);
+                tv.setText(ss);
+            } else {
+                left = right = PixelFormat.dp2px(context, 12);
+                top = bottom = PixelFormat.dp2px(context, 6);
+                tv.setPadding(left, top, right, bottom);
+                tv.setText(spanned);
+            }
+        }
+    }
+
+    private void setSpannedText(String title, TextView tv_title, LinearLayout layout) {
+        int left, top, right, bottom;
+        if (title == null || title.trim().length() == 0) {
+            tv_title.setText("无标题");
+            left = right = top = bottom = PixelFormat.dp2px(context, 12);
+            layout.setPadding(left, top, right, bottom);
+        } else {
+            Spanned spanned = Html.fromHtml(title);
+            SpannableString ss = new SpannableString(spanned);
+            if (title.contains("<sup>")) {
+                ss.setSpan(new SuperscriptSpan(), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                left = right = PixelFormat.dp2px(context, 12);
+                top = bottom = PixelFormat.dp2px(context, 8);
+                layout.setPadding(left, top, right, bottom);
+                tv_title.setText(ss);
+            } else if (title.contains("<sub>")) {
+                ss.setSpan(new SubscriptSpan(), 0, ss.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                left = right = PixelFormat.dp2px(context, 12);
+                top = bottom = PixelFormat.dp2px(context, 8);
+                layout.setPadding(left, top, right, bottom);
+                tv_title.setText(ss);
+            } else {
+                left = right = top = bottom = PixelFormat.dp2px(context, 12);
+                layout.setPadding(left, top, right, bottom);
+                tv_title.setText(spanned);
+            }
         }
     }
 
@@ -70,5 +155,13 @@ public class CourseSectionAdapter extends BaseArrayRecyclerAdapter<MultiItemEnti
 
     public void setOnSectionClickListener(OnSectionClickListener onSectionClickListener) {
         this.onSectionClickListener = onSectionClickListener;
+    }
+
+    public interface OnItemLongClickListener {
+        void onItemLongClick(TextView tv, CharSequence charSequence);
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener onItemLongClickListener) {
+        this.onItemLongClickListener = onItemLongClickListener;
     }
 }
