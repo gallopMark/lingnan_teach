@@ -263,6 +263,20 @@ public class TeacherCourseFragment extends BaseFragment {
                 enterActivity(activity);
             }
         });
+        mAdapter.setOnItemLongClickListener(new CourseActivityAdapter.OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(TextView tv, CharSequence charSequence) {
+                if (overLine(tv)) {
+                    MaterialDialog dialog = new MaterialDialog(context);
+                    dialog.setTitle(null);
+                    dialog.setMessage(charSequence);
+                    dialog.setCanceledOnTouchOutside(true);
+                    dialog.setCancelable(true);
+                    dialog.setPositiveButton("关闭", null);
+                    dialog.show();
+                }
+            }
+        });
     }
 
     /**
