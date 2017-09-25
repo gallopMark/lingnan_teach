@@ -380,9 +380,9 @@ public class PageStatisticsFragment extends BaseFragment implements View.OnClick
     private void updateUI(CourseStatisticsResult.CourseStatisticsData responseData) {
         if (responseData.getmCourse() != null) {
             courseViews[0].setText(responseData.getmCourse().getTitle());
-            if (responseData.getmCourse().getTimePeriod() != null) {
-                long startTime = responseData.getmCourse().getTimePeriod().getStartTime();
-                long endTime = responseData.getmCourse().getTimePeriod().getEndTime();
+            if (responseData.getmCourse().getmTimePeriod() != null) {
+                long startTime = responseData.getmCourse().getmTimePeriod().getStartTime();
+                long endTime = responseData.getmCourse().getmTimePeriod().getEndTime();
                 courseViews[1].setText("开课时间：" + TimeUtil.convertTimeOfDay(startTime, endTime));
             } else {
                 courseViews[1].setText("开课时间：未设置");

@@ -7,10 +7,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.haoyu.app.activity.AppMultiImageShowActivity;
 import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
 import com.haoyu.app.entity.CourseMobileEntity;
+import com.haoyu.app.imageloader.GlideImgManager;
 import com.haoyu.app.lingnan.teacher.R;
 import com.haoyu.app.utils.PixelFormat;
 import com.haoyu.app.utils.ScreenUtils;
@@ -45,17 +45,22 @@ public class TeacherCourseListAdapter extends BaseArrayRecyclerAdapter<CourseMob
         TextView course_code = holder.obtainView(R.id.course_code);
         TextView course_period = holder.obtainView(R.id.course_period);
         TextView course_state = holder.obtainView(R.id.course_state);
+        View line = holder.obtainView(R.id.line);
         course_img.setLayoutParams(params);
-        Glide.with(context)
-                .load(entity.getImage())
-                .placeholder(R.drawable.app_default)
-                .error(R.drawable.app_default)
-                .dontAnimate().into(course_img);
+        GlideImgManager.loadImage(context, entity.getImage(), R.drawable.app_default, R.drawable.app_default, course_img);
         course_title.setText(entity.getTitle());
-        course_code.setText(entity.getCode() + "/" + entity.getTermNo());
-        if (entity.getTimePeriod() != null) {
-            course_period.setText("开课：" + TimeUtil.getSlashDate(entity.getTimePeriod().getStartTime()));
-            if (entity.getTimePeriod().getEndTime() >= System.currentTimeMillis()) {
+        String codeStr = "";
+        if (entity.getCode() != null && entity.getCode().trim().length() > 0) {
+            codeStr += entity.getCode();
+        }
+        if (entity.getTermNo() != null && entity.getCode().trim().length() > 0) {
+            codeStr += "/" + entity.getTermNo();
+        }
+        course_code.setText(codeStr);
+        if (entity.getmTimePeriod() != null) {
+            course_period.setText("开课：" + TimeUtil.getSlashDate(entity.getmTimePeriod().getStartTime()));
+            course_state.setVisibility(View.VISIBLE);
+            if (entity.getmTimePeriod().getEndTime() >= System.currentTimeMillis()) {
                 course_state.setText("进行中");
             } else {
                 course_state.setText("已结束");
@@ -63,6 +68,11 @@ public class TeacherCourseListAdapter extends BaseArrayRecyclerAdapter<CourseMob
         } else {
             course_period.setText("开课：暂未设置");
             course_state.setVisibility(View.GONE);
+        }
+        if (position == getItemCount() - 1) {
+            line.setVisibility(View.GONE);
+        } else {
+            line.setVisibility(View.VISIBLE);
         }
         course_img.setOnClickListener(new View.OnClickListener() {
             @Override
