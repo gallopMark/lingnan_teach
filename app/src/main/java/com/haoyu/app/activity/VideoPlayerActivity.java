@@ -213,8 +213,6 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
                             hideWarnControll();
                             videoViewStart();
                             mVideoView.seekTo(videoPosition);
-
-
                         }
                     }
 
