@@ -15,7 +15,7 @@ public class FAQsAnswerEntity implements Serializable {
 	private String content;		//回答内容
 	@Expose
 	@SerializedName("createTime")
-	private Long createTime;		//回答时间
+	private long createTime;		//回答时间
 	@Expose
 	@SerializedName("creator")
 	private MobileUser creator;		//回答人
@@ -27,7 +27,7 @@ public class FAQsAnswerEntity implements Serializable {
 		return this.content;
 	}
 
-	public Long getCreateTime() {
+	public long getCreateTime() {
 		return this.createTime;
 	}
 
@@ -43,7 +43,7 @@ public class FAQsAnswerEntity implements Serializable {
 		this.content = content;
 	}
 
-	public void setCreateTime(Long createTime) {
+	public void setCreateTime(long createTime) {
 		this.createTime = createTime;
 	}
 
