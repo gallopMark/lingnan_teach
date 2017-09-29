@@ -271,6 +271,7 @@ public class WSTeachingDiscussActivity extends BaseActivity implements View.OnCl
                         Intent intent = new Intent();
                         intent.putExtra("activity", activity);
                         setResult(RESULT_OK, intent);
+                        toastFullScreen("提交成功", true);
                         finish();
                     }
                 }, new Consumer<Throwable>() {
@@ -294,6 +295,7 @@ public class WSTeachingDiscussActivity extends BaseActivity implements View.OnCl
         Map<String, String> map = new HashMap<>();
         map.put("activity.attributeMap[main_post_num].attrValue", mainCount);
         map.put("activity.attributeMap[sub_post_num].attrValue", childCount);
+        map.put("_method", "PUT");
         String json = OkHttpClientManager.postAsString(context, url, map);
         Gson gson = new GsonBuilder().create();
         BaseResponseResult result = gson.fromJson(json, BaseResponseResult.class);
