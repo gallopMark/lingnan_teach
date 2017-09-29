@@ -59,17 +59,34 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tv_title"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="22dp"
                     android:layout_marginTop="10dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:text="导入新课的创新构思和运用"
-                    android:textSize="@dimen/font_size_18"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="22dp"
+                        android:layout_marginRight="@dimen/margin_size_12"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="导入新课的创新构思和运用"
+                        android:textSize="@dimen/font_size_18"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/iv_isExpand"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:scaleType="center"
+                        android:layout_marginRight="@dimen/margin_size_10"
+                        android:src="@drawable/progress_goto" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tv_researchTime"
@@ -96,9 +113,9 @@
                 android:id="@+id/show_add_task"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_size_10"
                 android:layout_marginBottom="10dp"
-                android:layout_marginLeft="22dp">
+                android:layout_marginLeft="22dp"
+                android:layout_marginTop="@dimen/margin_size_10">
 
                 <TextView
                     android:id="@+id/tv_addTask"
@@ -145,7 +162,7 @@
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:drawablePadding="@dimen/margin_size_6"
-                        android:drawableTop="@drawable/teach_video"
+                        android:drawableTop="@drawable/workshop_teachvideo"
                         android:gravity="center"
                         android:text="教学观摩"
                         android:textSize="@dimen/font_size_14" />
@@ -157,7 +174,7 @@
                         android:layout_gravity="center"
                         android:layout_weight="1"
                         android:drawablePadding="@dimen/margin_size_6"
-                        android:drawableTop="@drawable/teach_study"
+                        android:drawableTop="@drawable/workshop_teachstudy"
                         android:gravity="center"
                         android:text="听课评课"
                         android:textSize="@dimen/font_size_14" />
