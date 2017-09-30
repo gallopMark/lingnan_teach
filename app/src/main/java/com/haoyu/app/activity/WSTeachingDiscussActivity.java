@@ -297,6 +297,24 @@ public class WSTeachingDiscussActivity extends BaseActivity implements View.OnCl
                     lastSubmit(activity.getId(), mainCount, childCount, startTime, endTime);
                 }
             }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Boolean>() {
+                    @Override
+                    public void accept(Boolean success) throws Exception {
+                        hideLoadingDialog();
+                        Intent intent = new Intent();
+                        intent.putExtra("activity", activity);
+                        setResult(RESULT_OK, intent);
+                        toastFullScreen("提交成功", true);
+                        finish();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        hideLoadingDialog();
+                        toastFullScreen("提交失败", false);
+                    }
+                }));
         }, map));
     }
 
@@ -334,6 +352,7 @@ public class WSTeachingDiscussActivity extends BaseActivity implements View.OnCl
         map.put("_method", "put");
         map.put("activity.attributeMap[main_post_num].attrValue", mainCount);
         map.put("activity.attributeMap[sub_post_num].attrValue", childCount);
+        map.put("_method", "PUT");
         String json = OkHttpClientManager.postAsString(context, url, map);
         Gson gson = new GsonBuilder().create();
         BaseResponseResult result = gson.fromJson(json, BaseResponseResult.class);
