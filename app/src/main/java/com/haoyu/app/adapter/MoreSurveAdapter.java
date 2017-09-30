@@ -7,7 +7,7 @@ import android.widget.TextView;
 import com.haoyu.app.basehelper.BaseArrayRecyclerAdapter;
 import com.haoyu.app.entity.SurveyAnswerSubmission;
 import com.haoyu.app.imageloader.GlideImgManager;
-import com.haoyu.app.lego.teach.R;
+import com.haoyu.app.lingnan.teacher.R;
 
 import java.util.List;
 
