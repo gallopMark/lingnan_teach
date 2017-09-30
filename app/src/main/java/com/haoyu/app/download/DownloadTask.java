@@ -108,6 +108,22 @@ public class DownloadTask {
     public synchronized void start() {
         if (isDownloading) return;
         isDownloading = true;
+        filePath = filePath == null ? Constants.fileDownDir : filePath;
+        fileName = fileName == null ? getFileName() : fileName;
+        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {   //如果sd卡不可用则返回
+            Flowable.just(DownloadTask.this).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<DownloadTask>() {
+                @Override
+                public void accept(DownloadTask downloadTask) throws Exception {
+                    if (mListner != null)
+                        mListner.onFailed(downloadTask);
+                }
+            });
+            return;
+        }
+        File fileDir = new File(filePath);
+        if (!fileDir.exists())
+            fileDir.mkdir();
+        mTmpFile = new File(filePath, fileName + ".temp");
         disposable = Flowable.just(url).map(new Function<String, Long>() {
             @Override
             public Long apply(String url) throws Exception {
@@ -132,10 +148,11 @@ public class DownloadTask {
             @Override
             public void accept(String savePath) throws Exception {
                 resetStutus();
-                if (mListner != null) {
-                    if (savePath != null)
+                if (savePath != null) {
+                    if (mListner != null)
                         mListner.onSuccess(DownloadTask.this, savePath);
-                    else
+                } else {
+                    if (mListner != null)
                         mListner.onFailed(DownloadTask.this);
                 }
             }
@@ -183,25 +200,8 @@ public class DownloadTask {
     private String download(long contentLength) {
         int retryCount = 0;
         long downloadLength = 0;   //记录已经下载的文件长度
-        filePath = filePath == null ? Constants.fileDownDir : filePath;
-        fileName = fileName == null ? getFileName() : fileName;
-        if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {   //如果sd卡不可用则返回
-            Flowable.just(DownloadTask.this).observeOn(AndroidSchedulers.mainThread()).subscribe(new Consumer<DownloadTask>() {
-                @Override
-                public void accept(DownloadTask downloadTask) throws Exception {
-                    if (mListner != null)
-                        mListner.onFailed(downloadTask);
-                }
-            });
-            return null;
-        }
-        File fileDir = new File(filePath);
-        if (!fileDir.exists())
-            fileDir.mkdir();
-        mTmpFile = new File(filePath, fileName + ".tmp");
-        if (mTmpFile.exists()) {
+        if (mTmpFile.exists())
             downloadLength = mTmpFile.length();
-        }
         Request request;
         if (headers != null) {
             request = new Request.Builder().headers(headers)
@@ -232,6 +232,8 @@ public class DownloadTask {
                             mListner.onProgress(DownloadTask.this, params[0], params[1]);
                     }
                 });
+                if (!isDownloading)
+                    return null;
             }
             response.body().close();
             if (!mTmpFile.exists())
@@ -243,6 +245,7 @@ public class DownloadTask {
                 mTmpFile.renameTo(targetFile);//下载完毕后，重命名目标文件
             return targetFile.getAbsolutePath();
         } catch (Exception e) {
+            e.printStackTrace();
             if (e.getCause().equals(SocketTimeoutException.class) && retryCount < retryTime) {
                 retryCount++;
                 return download(contentLength);

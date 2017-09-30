@@ -36,7 +36,6 @@ public class WorkShopSectionAdapter extends BaseArrayRecyclerAdapter<MWorkshopSe
     private int viewType;
     private boolean addTask;
     private OnAddTaskListener addTaskListener;
-    private String startTime, endTime;
     private OnTaskEditListener onTaskEditListener;
     private AddActivityCallBack addActivityCallBack;
     private int mainPosition = -1, childPosition = -1;
@@ -88,6 +87,7 @@ public class WorkShopSectionAdapter extends BaseArrayRecyclerAdapter<MWorkshopSe
             ll_add_type.setVisibility(View.GONE);
             TextView tv_position = holder.obtainView(R.id.tv_position);
             TextView tv_title = holder.obtainView(R.id.tv_title);
+            final ImageView iv_isExpand = holder.obtainView(R.id.iv_isExpand);
             TextView tv_researchTime = holder.obtainView(R.id.tv_researchTime);
             final RecyclerView atRecyclerView = holder.obtainView(R.id.atRecyclerView);
             atRecyclerView.setNestedScrollingEnabled(false);
@@ -97,10 +97,16 @@ public class WorkShopSectionAdapter extends BaseArrayRecyclerAdapter<MWorkshopSe
             atRecyclerView.setFocusable(false);
             WorkShopAtAdapter adapter = new WorkShopAtAdapter(entity.getActivities(), position);
             atRecyclerView.setAdapter(adapter);
+            if (entity.getActivities().size() > 0)
+                iv_isExpand.setVisibility(View.VISIBLE);
+            else
+                iv_isExpand.setVisibility(View.GONE);
             if (arrayMap.get(position) != null && arrayMap.get(position)) {
                 atRecyclerView.setVisibility(View.VISIBLE);
+                iv_isExpand.setImageResource(R.drawable.course_dictionary_xiala);
             } else {
                 atRecyclerView.setVisibility(View.GONE);
+                iv_isExpand.setImageResource(R.drawable.progress_goto);
             }
             //添加任务
             TextView task_add = holder.obtainView(R.id.tv_addTask);
@@ -128,17 +134,14 @@ public class WorkShopSectionAdapter extends BaseArrayRecyclerAdapter<MWorkshopSe
                 public void onClick(View v) {
                     switch (v.getId()) {
                         case R.id.ll_content:
-                            if (entity.getActivities() != null && entity.getActivities().size() > 0
-                                    && atRecyclerView.getVisibility() == View.GONE) {
+                            if (atRecyclerView.getVisibility() == View.VISIBLE) {
+                                arrayMap.put(position, false);
+                                atRecyclerView.setVisibility(View.GONE);
+                                iv_isExpand.setImageResource(R.drawable.progress_goto);
+                            } else {
                                 arrayMap.put(position, true);
                                 atRecyclerView.setVisibility(View.VISIBLE);
-                            } else if (entity.getActivities() != null && entity.getActivities().size() > 0
-                                    && atRecyclerView.getVisibility() == View.VISIBLE) {
-                                arrayMap.put(position, false);
-                                atRecyclerView.setVisibility(View.GONE);
-                            } else {
-                                arrayMap.put(position, false);
-                                atRecyclerView.setVisibility(View.GONE);
+                                iv_isExpand.setImageResource(R.drawable.course_dictionary_xiala);
                             }
                             break;
                         case R.id.tv_addTask:

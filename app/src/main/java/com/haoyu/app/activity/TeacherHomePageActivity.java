@@ -3,6 +3,7 @@ package com.haoyu.app.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -125,9 +126,15 @@ public class TeacherHomePageActivity extends BaseActivity implements View.OnClic
                 , R.drawable.user_default, R.drawable.user_default, iv_userIco);
         iv_userIco.setOnClickListener(context);
         tv_userName = getView(menuView, R.id.tv_userName);
-        tv_userName.setText(getRealName());
         tv_deptName = getView(menuView, R.id.tv_deptName);
-        tv_deptName.setText(getDeptName());
+        if (TextUtils.isEmpty(getRealName()))
+            tv_userName.setText("请填写用户名");
+        else
+            tv_userName.setText(getRealName());
+        if (TextUtils.isEmpty(getDeptName()))
+            tv_deptName.setText("请选择单位");
+        else
+            tv_deptName.setText(getDeptName());
         TextView tv_education = getView(menuView, R.id.tv_education);
         tv_education.setOnClickListener(context);
         TextView tv_teaching = getView(menuView, R.id.tv_teaching);
@@ -203,6 +210,10 @@ public class TeacherHomePageActivity extends BaseActivity implements View.OnClic
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
                 CourseMobileEntity entity = mCourses.get(position);
+                if (entity.getmTimePeriod() != null && entity.getmTimePeriod().getState() != null && entity.getmTimePeriod().getState().equals("未开始")) {
+                    showMaterialDialog("温馨提示", "课程尚未开放");
+                    return;
+                }
                 String courseId = entity.getId();
                 String courseTitle = entity.getTitle();
                 Intent intent = new Intent(context, TeacherCourseTabActivity.class);
@@ -216,15 +227,12 @@ public class TeacherHomePageActivity extends BaseActivity implements View.OnClic
             @Override
             public void onItemClick(BaseRecyclerAdapter adapter, BaseRecyclerAdapter.RecyclerHolder holder, View view, int position) {
                 WorkShopMobileEntity entity = mWorkshops.get(position);
-                if (entity != null) {
-                    String workshopId = entity.getId();
-                    String workshopTitle = entity.getTitle();
-                    Intent intent = new Intent(context, WorkshopHomePageActivity.class);
-                    intent.putExtra("workshopId", workshopId);
-                    intent.putExtra("workshopTitle", workshopTitle);
-                    startActivity(intent);
-                }
-
+                String workshopId = entity.getId();
+                String workshopTitle = entity.getTitle();
+                Intent intent = new Intent(context, WorkshopHomePageActivity.class);
+                intent.putExtra("workshopId", workshopId);
+                intent.putExtra("workshopTitle", workshopTitle);
+                startActivity(intent);
             }
         });
     }

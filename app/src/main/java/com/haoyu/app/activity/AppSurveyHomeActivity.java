@@ -5,6 +5,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -13,9 +14,11 @@ import com.haoyu.app.entity.AppActivityViewEntity;
 import com.haoyu.app.entity.CourseSurveyEntity;
 import com.haoyu.app.entity.TimePeriod;
 import com.haoyu.app.lingnan.teacher.R;
+import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.TimeUtil;
 import com.haoyu.app.view.AppToolBar;
-import com.haoyu.app.view.ExpandableTextView;
+
+import org.sufficientlysecure.htmltextview.HtmlHttpImageGetter;
 
 import butterknife.BindView;
 
@@ -37,7 +40,7 @@ public class AppSurveyHomeActivity extends BaseActivity {
     @BindView(R.id.tv_survey_title)
     TextView tv_survey_title;
     @BindView(R.id.tv_description)
-    ExpandableTextView tv_description;
+    TextView tv_description;
     @BindView(R.id.rl_take_part_in)
     RelativeLayout rl_take_part_in;
     private String relationId;
@@ -48,7 +51,7 @@ public class AppSurveyHomeActivity extends BaseActivity {
     @BindView(R.id.surveyIco)
     ImageView surveyIco;
     @BindView(R.id.survey_content)
-    View survey_content;
+    LinearLayout survey_content;
     @BindView(R.id.stopTips)
     TextView stopTips;
     @BindView(R.id.tv_bottomtips)
@@ -73,7 +76,10 @@ public class AppSurveyHomeActivity extends BaseActivity {
         relationId = getIntent().getStringExtra("relationId");
         activityId = getIntent().getStringExtra("activityId");
         String activityTitle = getIntent().getStringExtra("activityTitle");
-        toolBar.setTitle_text(activityTitle);
+        if (activityTitle != null && activityTitle.trim().length() > 0)
+            toolBar.setTitle_text(Html.fromHtml(activityTitle).toString());
+        else
+            toolBar.setTitle_text("问卷调查");
     }
 
     public void initData() {
@@ -106,7 +112,8 @@ public class AppSurveyHomeActivity extends BaseActivity {
         surveyTitle = surveyEntity.getTitle();
         tv_survey_title.setText(surveyTitle);
         toolBar.setTitle_text(surveyTitle);
-        Spanned spanned = Html.fromHtml(surveyEntity.getDescription());
+        String description = surveyEntity.getDescription();
+        Spanned spanned = Html.fromHtml(description, new HtmlHttpImageGetter(tv_description, Constants.REFERER, true), null);
         tv_description.setText(spanned);
     }
 
@@ -158,7 +165,7 @@ public class AppSurveyHomeActivity extends BaseActivity {
                     intent.putExtra("surveyTitle", surveyTitle);
                     intent.putExtra("surveyId", surveyId);
                     intent.putExtra("state", state);
-                    startActivityForResult(intent,REQUEST_CODE);
+                    startActivityForResult(intent, REQUEST_CODE);
                 }
             }
         });

@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -149,7 +150,7 @@ public class ResourcesUploadActivity extends BaseActivity implements View.OnClic
                     mDatas.add(entity.getChildSections().get(j));
                 }
         }
-        CourseSectionAdapter sectionAdapter = new CourseSectionAdapter(mDatas);
+        CourseSectionAdapter sectionAdapter = new CourseSectionAdapter(context, mDatas);
         recyclerView.setAdapter(sectionAdapter);
         sectionAdapter.setOnSectionClickListener(new CourseSectionAdapter.OnSectionClickListener() {
             @Override
@@ -157,6 +158,20 @@ public class ResourcesUploadActivity extends BaseActivity implements View.OnClic
                 sectionEntity = entity;
                 tv_section.setText(sectionEntity.getTitle());
                 popupWindow.dismiss();
+            }
+        });
+        sectionAdapter.setOnItemLongClickListener(new CourseSectionAdapter.OnItemLongClickListener() {
+            @Override
+            public void onItemLongClick(TextView tv, CharSequence charSequence) {
+                if (overLine(tv)) {
+                    MaterialDialog dialog = new MaterialDialog(context);
+                    dialog.setTitle(null);
+                    dialog.setMessage(charSequence);
+                    dialog.setCanceledOnTouchOutside(true);
+                    dialog.setCancelable(true);
+                    dialog.setPositiveButton("关闭", null);
+                    dialog.show();
+                }
             }
         });
         popupWindow.setFocusable(true);
@@ -169,6 +184,17 @@ public class ResourcesUploadActivity extends BaseActivity implements View.OnClic
             }
         });
         popupWindow.showAsDropDown(tv_section);
+    }
+
+    private boolean overLine(TextView tv) {
+        Layout layout = tv.getLayout();
+        if (layout != null && layout.getLineCount() > 0) {
+            int lines = layout.getLineCount();//获取textview行数
+            if (layout.getEllipsisCount(lines - 1) > 0) {//获取最后一行省略掉的字符数，大于0就代表超过行数
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -51,7 +51,6 @@ public class CoursewareEditorActivity extends BaseActivity {
     FrameLayout content;
     ProgressWebView webView;
     private boolean running, needUpload;
-    private String activityId;
     private int viewNum, needViewNum, interval;    //已观看次数，要求观看次数，延时访问时间
 
     @Override
@@ -63,12 +62,14 @@ public class CoursewareEditorActivity extends BaseActivity {
     public void initView() {
         running = getIntent().getBooleanExtra("running", false);
         needUpload = getIntent().getBooleanExtra("needUpload", false);
-        activityId = getIntent().getStringExtra("activityId");
         String title = getIntent().getStringExtra("title");
         viewNum = getIntent().getIntExtra("viewNum", 0);
         needViewNum = getIntent().getIntExtra("needViewNum", 0);
         interval = getIntent().getIntExtra("interval", 12);
-        toolBar.setTitle_text(title);
+        if (title != null && title.trim().length() > 0)
+            toolBar.setTitle_text(Html.fromHtml(title).toString());
+        else
+            toolBar.setTitle_text("教学课件");
         showTips();
         String editor = getIntent().getStringExtra("editor");
         setEditor(editor);
@@ -92,7 +93,7 @@ public class CoursewareEditorActivity extends BaseActivity {
         webView.setScrollBarStyle(View.SCROLLBARS_OUTSIDE_OVERLAY);
         content.addView(webView);
         webView.getSettings().setTextZoom(300);
-        webView.loadDataWithBaseURL(null, editor, "text/html", "utf-8", null);
+        webView.loadDataWithBaseURL(Constants.REFERER, editor, "text/html", "utf-8", null);
     }
 
     /**

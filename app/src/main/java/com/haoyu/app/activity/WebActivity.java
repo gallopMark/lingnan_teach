@@ -17,8 +17,6 @@ import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.dialog.MaterialDialog;
 import com.haoyu.app.download.DownloadManager;
 import com.haoyu.app.download.DownloadTask;
-import com.haoyu.app.download.db.DownloadDBManager;
-import com.haoyu.app.download.db.DownloadFileInfo;
 import com.haoyu.app.lingnan.teacher.R;
 import com.haoyu.app.utils.Common;
 import com.haoyu.app.utils.Constants;
@@ -49,7 +47,8 @@ public class WebActivity extends BaseActivity {
     LinearLayout ll_failure;
     private ProgressWebView webView;
     private String url;
-    private DownloadDBManager dbManager;
+    private String fileRoot = Constants.fileDownDir;
+    private String filePath, fileName;
 
     @Override
     public int setLayoutResID() {
@@ -112,10 +111,10 @@ public class WebActivity extends BaseActivity {
     }
 
     private void onDownload(final String url) {
-        dbManager = new DownloadDBManager(context);
-        String savePath = dbManager.search(url);
-        if (savePath != null && new File(savePath).exists()) {
-            Common.openFile(context, new File(savePath));
+        fileName = Common.getFileName(url);
+        filePath = fileRoot + File.separator + fileName;
+        if (new File(filePath).exists()) {
+            Common.openFile(context, new File(filePath));
         } else {
             if (NetStatusUtil.isConnected(context)) {
                 String message;
@@ -146,7 +145,6 @@ public class WebActivity extends BaseActivity {
     }
 
     private void download(final String url) {
-        String fileName = Common.getFileName(url);
         View contentView = getLayoutInflater().inflate(R.layout.dialog_download, null);
         TextView tv_fileName = contentView.findViewById(R.id.tv_fileName);
         final ProgressBar mProgressBar = contentView.findViewById(R.id.mRrogressBar);
@@ -161,7 +159,7 @@ public class WebActivity extends BaseActivity {
         dialog.show();
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams((ScreenUtils.getScreenWidth(context) / 6 * 5), LinearLayout.LayoutParams.WRAP_CONTENT);
         dialog.setContentView(contentView, params);
-        DownloadManager.getInstance().create(url).setFilePath(Constants.fileDownDir).setFileName(fileName).addListener(new com.haoyu.app.download.DownloadListener() {
+        DownloadManager.getInstance().create(url).setFilePath(fileRoot).setFileName(fileName).addListener(new com.haoyu.app.download.DownloadListener() {
             @Override
             public void onProgress(DownloadTask downloadTask, long soFarBytes, long totalBytes) {
                 mProgressBar.setProgress((int) soFarBytes);
@@ -176,11 +174,6 @@ public class WebActivity extends BaseActivity {
                     Common.openFile(context, new File(savePath));
                 else
                     toast(context, "下载的文件已被删除");
-                DownloadFileInfo fileInfo = new DownloadFileInfo();
-                fileInfo.setFileName(downloadTask.getFileName());
-                fileInfo.setUrl(downloadTask.getUrl());
-                fileInfo.setFilePath(savePath);
-                dbManager.save(fileInfo);
             }
 
             @Override
@@ -235,8 +228,7 @@ public class WebActivity extends BaseActivity {
             public void onClick(View view) {
                 fl_content.setVisibility(View.VISIBLE);
                 ll_failure.setVisibility(View.GONE);
-                fl_content.removeAllViews();
-                configWebview();
+                webView.reload();
             }
         });
     }

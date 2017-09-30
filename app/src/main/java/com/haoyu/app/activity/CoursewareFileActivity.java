@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
-import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
+import com.github.barteksc.pdfviewer.listener.OnPageChangeListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.haoyu.app.base.BaseActivity;
@@ -24,8 +24,6 @@ import com.haoyu.app.base.BaseResponseResult;
 import com.haoyu.app.download.DownloadListener;
 import com.haoyu.app.download.DownloadManager;
 import com.haoyu.app.download.DownloadTask;
-import com.haoyu.app.download.db.DownloadDBManager;
-import com.haoyu.app.download.db.DownloadFileInfo;
 import com.haoyu.app.entity.AppActivityViewResult;
 import com.haoyu.app.entity.CourseSectionActivity;
 import com.haoyu.app.lingnan.teacher.R;
@@ -84,14 +82,18 @@ public class CoursewareFileActivity extends BaseActivity {
     RoundRectProgressBar progressBar;
     @BindView(R.id.iv_pause)
     ImageView iv_pause;
+    @BindView(R.id.rl_pdf)
+    RelativeLayout rl_pdf;
     @BindView(R.id.pdfView)
     PDFView pdfView;
+    @BindView(R.id.tv_page)
+    TextView tv_page;
     @BindView(R.id.tv_txt)
     TextView tv_txt;
     private boolean running, needUpload, isDownload, isKonw;
     private int viewNum, needViewNum, interval;    //已观看次数，要求观看次数，延时访问时间
-    private String url, filePath;
-    private DownloadDBManager dbManager;
+    private String fileRoot = Constants.coursewareDir;
+    private String url, filePath, fileName;
     private AlertDialog gestureDialog;
 
     @Override
@@ -107,10 +109,12 @@ public class CoursewareFileActivity extends BaseActivity {
         viewNum = getIntent().getIntExtra("viewNum", 0);
         needViewNum = getIntent().getIntExtra("needViewNum", 0);
         interval = getIntent().getIntExtra("interval", 12);
-        toolBar.setTitle_text(title);
+        if (title != null && title.trim().length() > 0)
+            toolBar.setTitle_text(Html.fromHtml(title).toString());
+        else
+            toolBar.setTitle_text("教学课件");
         showTips();
         url = getIntent().getStringExtra("file");
-        dbManager = new DownloadDBManager(context);
         previewFile();
     }
 
@@ -121,8 +125,9 @@ public class CoursewareFileActivity extends BaseActivity {
     }
 
     private void previewFile() {
-        String savePath = dbManager.search(url);
-        if (savePath != null && new File(savePath).exists()) {
+        fileName = Common.getFileName(url);
+        String savePath = fileRoot + File.separator + fileName;
+        if (new File(savePath).exists()) {
             if (new File(savePath).isFile() && MediaFile.isPdfFileType(url)) {
                 openPdfFile(savePath);
             } else if (new File(savePath).isFile() && MediaFile.isTxtFileType(url)) {
@@ -153,10 +158,9 @@ public class CoursewareFileActivity extends BaseActivity {
     }
 
     private void beginDownload() {
-        final String fileName = Common.getFileName(url);
         Map<String, String> headers = new HashMap<>();
         headers.put("Referer", Constants.REFERER);
-        DownloadManager.getInstance().create(url).setFilePath(Constants.coursewareDir).setFileName(fileName).addHeaders(headers).addListener(new DownloadListener() {
+        DownloadManager.getInstance().create(url).setFilePath(fileRoot).setFileName(fileName).addHeaders(headers).addListener(new DownloadListener() {
             @Override
             public void onProgress(DownloadTask downloadTask, long soFarBytes, long totalBytes) {
                 String downloadSize = Common.FormetFileSize(soFarBytes);
@@ -187,11 +191,6 @@ public class CoursewareFileActivity extends BaseActivity {
                     ll_downloadInfo.setVisibility(View.GONE);
                     toastFullScreen("下载的文件不存在", false);
                 }
-                DownloadFileInfo fileInfo = new DownloadFileInfo();
-                fileInfo.setFileName(downloadTask.getFileName());
-                fileInfo.setUrl(downloadTask.getUrl());
-                fileInfo.setFilePath(savePath);
-                dbManager.save(fileInfo);
             }
 
             @Override
@@ -218,13 +217,19 @@ public class CoursewareFileActivity extends BaseActivity {
 
     private void openPdfFile(String filePath) {
         ll_fileInfo.setVisibility(View.GONE);
-        pdfView.setVisibility(View.VISIBLE);
+        rl_pdf.setVisibility(View.VISIBLE);
         pdfView.fromFile(new File(filePath))
                 .swipeHorizontal(true)
                 .defaultPage(0)
                 .enableDoubletap(true)
                 .enableSwipe(false)
-                .scrollHandle(new DefaultScrollHandle(context))
+                .onPageChange(new OnPageChangeListener() {
+                    @Override
+                    public void onPageChanged(int page, int pageCount) {
+                        tv_page.setText((page + 1) + "/" + pageCount);
+                    }
+                })
+                .scrollHandle(null)
                 .onLoad(new OnLoadCompleteListener() {
                     @Override
                     public void loadComplete(int nbPages) {

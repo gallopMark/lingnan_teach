@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.haoyu.app.lingnan.teacher.R;
-import com.haoyu.app.utils.ScreenUtils;
+
 
 /**
  * 创建日期：2017/4/6 on 17:24
@@ -24,7 +24,6 @@ public class MaterialDialog extends AlertDialog {
     private TextView tv_message; // 提示内容
     private Button bt_makesure; // 确定按钮
     private Button bt_cancel; // 取消按钮
-    private int dialog_width;
 
     public MaterialDialog(Context context) {
         super(context);
@@ -33,25 +32,19 @@ public class MaterialDialog extends AlertDialog {
         tv_message = view.findViewById(R.id.tv_message);
         bt_makesure = view.findViewById(R.id.bt_makesure);
         bt_cancel = view.findViewById(R.id.bt_cancel);
-        dialog_width = ScreenUtils.getScreenWidth(context) / 4 * 3;
         tv_message.setMovementMethod(ScrollingMovementMethod.getInstance());
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        init();
-    }
-
-    private void init() {
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dialog_width,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        setContentView(view, params);
-        setCanceledOnTouchOutside(false);
+        setContentView(view);
     }
 
     @Override
     public void setTitle(CharSequence title) {
+        if (title == null || title.length() == 0)
+            tv_tips.setVisibility(View.GONE);
         tv_tips.setText(title);
     }
 

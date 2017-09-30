@@ -18,8 +18,6 @@ import com.haoyu.app.base.BaseActivity;
 import com.haoyu.app.download.DownloadListener;
 import com.haoyu.app.download.DownloadManager;
 import com.haoyu.app.download.DownloadTask;
-import com.haoyu.app.download.db.DownloadDBManager;
-import com.haoyu.app.download.db.DownloadFileInfo;
 import com.haoyu.app.entity.MFileInfo;
 import com.haoyu.app.filePicker.FileUtils;
 import com.haoyu.app.lingnan.teacher.R;
@@ -78,8 +76,8 @@ public class MFileInfoActivity extends BaseActivity {
     TextView tv_txt;
 
     private boolean isDownload, isKonw;
+    private String fileRoot = Constants.fileDownDir;
     private String url, fileName, filePath;
-    private DownloadDBManager dbManager;
     private AlertDialog gestureDialog;
 
     @Override
@@ -89,7 +87,6 @@ public class MFileInfoActivity extends BaseActivity {
 
     @Override
     public void initData() {
-        dbManager = new DownloadDBManager(context);
         String title = getIntent().getStringExtra("title");
         MFileInfo mFileInfo = (MFileInfo) getIntent().getSerializableExtra("fileInfo");
         if (mFileInfo != null) {
@@ -110,8 +107,8 @@ public class MFileInfoActivity extends BaseActivity {
     }
 
     private void previewFile(MFileInfo mFileInfo) {
-        String savePath = dbManager.search(url);
-        if (savePath != null && new File(savePath).exists()) {
+        String savePath = fileRoot + File.separator + fileName;
+        if (new File(savePath).exists()) {
             if (new File(savePath).isFile() && MediaFile.isPdfFileType(url)) {
                 openPdfFile(savePath);
             } else if (new File(savePath).isFile() && MediaFile.isTxtFileType(url)) {
@@ -220,7 +217,7 @@ public class MFileInfoActivity extends BaseActivity {
             fileName = Common.getFileName(url);
         Map<String, String> headers = new HashMap<>();
         headers.put("Referer", Constants.REFERER);
-        DownloadManager.getInstance().create(url).setFilePath(Constants.fileDownDir).setFileName(fileName).addHeaders(headers).addListener(new DownloadListener() {
+        DownloadManager.getInstance().create(url).setFilePath(fileRoot).setFileName(fileName).addHeaders(headers).addListener(new DownloadListener() {
             @Override
             public void onProgress(DownloadTask downloadTask, long soFarBytes, long totalBytes) {
                 String downloadSize = Common.FormetFileSize(soFarBytes);
@@ -251,11 +248,6 @@ public class MFileInfoActivity extends BaseActivity {
                     ll_downloadInfo.setVisibility(View.GONE);
                     toastFullScreen("下载的文件不存在", false);
                 }
-                DownloadFileInfo fileInfo = new DownloadFileInfo();
-                fileInfo.setFileName(downloadTask.getFileName());
-                fileInfo.setUrl(downloadTask.getUrl());
-                fileInfo.setFilePath(savePath);
-                dbManager.save(fileInfo);
             }
 
             @Override
@@ -275,7 +267,7 @@ public class MFileInfoActivity extends BaseActivity {
 
             @Override
             public void onCancel(DownloadTask downloadTask) {
-                dbManager.delete(downloadTask.getUrl());
+
             }
         }).start();
     }
