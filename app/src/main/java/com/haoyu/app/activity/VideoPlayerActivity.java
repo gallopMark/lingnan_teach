@@ -19,7 +19,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.telephony.TelephonyManager;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
@@ -442,15 +441,11 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
 
     private void showPopWindow() {
         View view = LayoutInflater.from(context).inflate(R.layout.video_courseread_guide, null);
-        View parentView = LayoutInflater.from(context).inflate(R.layout.activity_videoplayer, null);
         popClose = getView(view, R.id.pop_close);
         TextView read_guide_content = getView(view, R.id.read_guide_content);
         RecyclerView recyclerView = getView(view, R.id.recyclerView);
         if (summary != null)
             read_guide_content.setText(summary);
-        else
-            read_guide_content.setText("暂无内容");
-
 
         if (mFileInfoList.size() > 0) {
             LinearLayoutManager manager = new LinearLayoutManager(context);
@@ -490,7 +485,7 @@ public class VideoPlayerActivity extends BaseActivity implements View.OnClickLis
                 }
             }
         });
-        window.showAtLocation(parentView, Gravity.RIGHT, 0, 0);
+        window.showAsDropDown(topControll, MyUtils.getWidth(context) * 2 / 5, 0);
     }
 
     //显示弹出内容

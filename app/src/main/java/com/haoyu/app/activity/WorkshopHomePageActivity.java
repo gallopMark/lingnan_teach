@@ -494,9 +494,9 @@ public class WorkshopHomePageActivity extends BaseActivity implements View.OnCli
             intent.putExtra("activityId", activity.getId());
             intent.putExtra("activityTitle", activity.getTitle());
             intent.putExtra("summary", videoEntity.getmVideo().getSummary());
+            intent.putExtra("videoId", videoEntity.getId());
             if (video != null && video.getVideoFiles() != null && video.getVideoFiles().size() > 0) {
                 intent.putExtra("videoUrl", video.getVideoFiles().get(0).getUrl());
-                intent.putExtra("videoId", video.getVideoFiles().get(0).getId());
                 intent.putExtra("attach", video);
                 startActivity(intent);
             } else if (video != null && video.getUrls() != null) {
