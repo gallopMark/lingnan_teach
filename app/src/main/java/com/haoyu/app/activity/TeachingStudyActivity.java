@@ -125,6 +125,7 @@ public class TeachingStudyActivity extends BaseActivity implements View.OnClickL
     private AppCommentAdapter adapter;
     private List<CommentEntity> mComments = new ArrayList<>();
     private int replyPosition, childPosition;
+    private String activityTitle;
 
     @Override
     public int setLayoutResID() {
@@ -133,6 +134,7 @@ public class TeachingStudyActivity extends BaseActivity implements View.OnClickL
 
     @Override
     public void initView() {
+        activityTitle = getIntent().getStringExtra("activityTitle");
         running = getIntent().getBooleanExtra("running", false);
         timePeriod = (TimePeriod) getIntent().getSerializableExtra("timePeriod");
         workshopId = getIntent().getStringExtra("workshopId");
@@ -495,9 +497,7 @@ public class TeachingStudyActivity extends BaseActivity implements View.OnClickL
                 if (NetStatusUtil.isConnected(context)) {
                     if (NetStatusUtil.isWifi(context)) {
                         intent.setClass(context, VideoPlayerActivity.class);
-                        if (lcecEntity.getmVideo().getFileName() != null) {
-                            intent.putExtra("fileName", lcecEntity.getmVideo().getFileName());
-                        }
+                        intent.putExtra("activityTitle", activityTitle);
                         intent.putExtra("videoUrl", lcecEntity.getmVideo().getUrl());
                         startActivity(intent);
                     } else {
