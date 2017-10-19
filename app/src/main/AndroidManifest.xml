@@ -62,10 +62,6 @@
         <activity android:name="com.haoyu.app.activity.AppCaptureActivity" />
 
         <activity android:name="com.haoyu.app.activity.TeacherHomePageActivity" />
-        <activity
-            android:name="com.haoyu.app.activity.WebActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
         <activity android:name="com.haoyu.app.activity.AppUserInfoActivity" />
 
 
