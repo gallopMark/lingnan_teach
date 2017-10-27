@@ -15,8 +15,8 @@
 
         <ImageView
             android:id="@+id/iv_ico"
-            android:layout_width="@dimen/margin_size_35"
-            android:layout_height="@dimen/margin_size_35"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:scaleType="centerCrop" />
 
         <LinearLayout
@@ -59,31 +59,25 @@
                 android:id="@+id/tv_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_size_10"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
                 android:ellipsize="end"
                 android:maxLines="3"
                 android:textColor="@color/gray"
-                android:layout_marginBottom="@dimen/margin_size_10"
                 android:textSize="@dimen/font_size_15" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/fileRV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/margin_size_10" />
         </LinearLayout>
 
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="@dimen/margin_size_1"
+        android:layout_height="1dp"
         android:background="@color/spaceColor" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
+        android:background="#FAFAFA"
         android:paddingBottom="@dimen/margin_size_10"
         android:paddingTop="@dimen/margin_size_10">
 
@@ -99,14 +93,14 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:drawableLeft="@drawable/discussion_xiaozan"
-                android:drawablePadding="@dimen/margin_size_5"
+                android:drawablePadding="5dp"
                 android:text="0"
                 android:textColor="@color/gray"
                 android:textSize="@dimen/font_size_14" />
         </RelativeLayout>
 
         <LinearLayout
-            android:layout_width="@dimen/margin_size_1"
+            android:layout_width="1dp"
             android:layout_height="match_parent"
             android:background="@color/spaceColor" />
 
@@ -122,7 +116,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:drawableLeft="@drawable/discussion_xiaopinglun"
-                android:drawablePadding="@dimen/margin_size_5"
+                android:drawablePadding="5dp"
                 android:text="0"
                 android:textColor="@color/gray"
                 android:textSize="@dimen/font_size_14" />
@@ -131,6 +125,6 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="@dimen/margin_size_12"
+        android:layout_height="@dimen/margin_size_8"
         android:background="@color/spaceColor" />
 </LinearLayout>
