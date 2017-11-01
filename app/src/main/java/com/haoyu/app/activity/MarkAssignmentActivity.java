@@ -24,9 +24,6 @@ import com.haoyu.app.entity.MAssignmentUser;
 import com.haoyu.app.entity.MFileInfo;
 import com.haoyu.app.entity.MarkAssignmentResult;
 import com.haoyu.app.lingnan.teacher.R;
-import com.haoyu.app.rxBus.MessageEvent;
-import com.haoyu.app.rxBus.RxBus;
-import com.haoyu.app.utils.Action;
 import com.haoyu.app.utils.Constants;
 import com.haoyu.app.utils.OkHttpClientManager;
 import com.haoyu.app.view.AppToolBar;
@@ -75,6 +72,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
     Button bt_submit;   //发回重做，提交按钮
     private String courseId, userName, relationId, state, mEvaluateSubmissionId, evaluateRelationId;
     private int fullScore = 100;
+    private ArrayMap<Integer, EvaluateItemSubmissions>evaluateMap;
 
     @Override
     public int setLayoutResID() {
@@ -181,8 +179,8 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         contentRV.setAdapter(evaluateAdapter);
         evaluateAdapter.setScoreChangeListener(new EvaluateItemAdapter.ScoreChangeListener() {
             @Override
-            public void scoreChange(ArrayMap<Integer, EvaluateItemSubmissions> evaluateMap) {
-                itemSubmissionsMap = evaluateMap;
+            public void scoreChange(ArrayMap<Integer, EvaluateItemSubmissions> arrayMap) {
+                evaluateMap = arrayMap;
                 bt_submit.setEnabled(true);
                 int score = 0;
                 for (Integer index : evaluateMap.keySet()) {
@@ -202,8 +200,6 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         tv_score.setText(null);
         tv_score.append(ss);
     }
-
-    private ArrayMap<Integer, EvaluateItemSubmissions> itemSubmissionsMap;
 
     @Override
     public void setListener() {
@@ -264,7 +260,7 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         Map<String, String> map = new HashMap<>();
         map.put("_method", "put");
         map.put("state", "return");
-        OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
             public void onBefore(Request request) {
                 showTipDialog();
@@ -280,15 +276,15 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
             public void onResponse(BaseResponseResult response) {
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
-                    MessageEvent event = new MessageEvent();
-                    event.action = Action.RETURN_ASSIGNMENT_REDO;
-                    RxBus.getDefault().post(event);
+                    Intent intent = new Intent();
+                    intent.putExtra("type", 1);
+                    setResult(RESULT_OK, intent);
                     finish();
                 } else {
                     toastFullScreen("退回失败", false);
                 }
             }
-        }, map);
+        }, map));
     }
 
     /*提交批阅*/
@@ -300,15 +296,15 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
         map.put("_method", "put");
         map.put("evaluateRelation.id", evaluateRelationId);
         map.put("evaluateRelation.relation.id", relationId);
-        if (itemSubmissionsMap != null) {
-            for (Integer index : itemSubmissionsMap.keySet()) {
-                EvaluateItemSubmissions item = itemSubmissionsMap.get(index);
+        if (evaluateMap != null) {
+            for (Integer index : evaluateMap.keySet()) {
+                EvaluateItemSubmissions item = evaluateMap.get(index);
                 if (item != null) {
                     map.put("evaluateItemSubmissionMap[" + item.getId() + "].score", String.valueOf(item.getStarCount()));
                 }
             }
         }
-        OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
+        addSubscription(OkHttpClientManager.postAsyn(context, url, new OkHttpClientManager.ResultCallback<BaseResponseResult>() {
             @Override
             public void onBefore(Request request) {
                 showTipDialog();
@@ -325,20 +321,20 @@ public class MarkAssignmentActivity extends BaseActivity implements View.OnClick
                 hideTipDialog();
                 if (response != null && response.getResponseCode() != null && response.getResponseCode().equals("00")) {
                     int score = 0;
-                    if (itemSubmissionsMap != null) {
-                        for (Integer index : itemSubmissionsMap.keySet()) {
-                            score += itemSubmissionsMap.get(index).getScore();
+                    if (evaluateMap != null) {
+                        for (Integer index : evaluateMap.keySet()) {
+                            score += evaluateMap.get(index).getScore();
                         }
                     }
-                    MessageEvent event = new MessageEvent();
-                    event.action = Action.READ_OVER_ASSIGNMENT;
-                    event.arg1 = score;
-                    RxBus.getDefault().post(event);
+                    Intent intent = new Intent();
+                    intent.putExtra("type", 2);
+                    intent.putExtra("score", score);
+                    setResult(RESULT_OK, intent);
                     finish();
                 } else {
                     toast(context, "提交失败");
                 }
             }
-        }, map);
+        }, map));
     }
 }
