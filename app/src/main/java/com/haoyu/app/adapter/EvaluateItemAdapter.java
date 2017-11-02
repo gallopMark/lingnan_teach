@@ -8,7 +8,6 @@ import com.haoyu.app.entity.EvaluateItemSubmissions;
 import com.haoyu.app.lingnan.teacher.R;
 import com.haoyu.app.view.StarBar;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -19,12 +18,12 @@ import java.util.List;
 public class EvaluateItemAdapter extends BaseArrayRecyclerAdapter<EvaluateItemSubmissions> {
 
     private ScoreChangeListener scoreChangeListener;
-    private ArrayMap<Integer, EvaluateItemSubmissions> evaluateMap = new ArrayMap<>();
-    private String state;
+    private ArrayMap<Integer, Integer> evaluateMap = new ArrayMap<>();
+    private boolean enable;
 
-    public EvaluateItemAdapter(List<EvaluateItemSubmissions> mDatas, String state) {
+    public EvaluateItemAdapter(List<EvaluateItemSubmissions> mDatas, boolean enable) {
         super(mDatas);
-        this.state = state;
+        this.enable = enable;
     }
 
     public void setScoreChangeListener(ScoreChangeListener scoreChangeListener) {
@@ -40,28 +39,19 @@ public class EvaluateItemAdapter extends BaseArrayRecyclerAdapter<EvaluateItemSu
         ratingBar.setOnStarChangeListener(new StarBar.OnStarChangeListener() {
             @Override
             public void onStarChange(float mark) {
-                EvaluateItemSubmissions itemSubmissions;
-                if (evaluateMap.get(position) == null) {
-                    itemSubmissions = new EvaluateItemSubmissions();
-                } else {
-                    itemSubmissions = evaluateMap.get(position);
-                }
-                itemSubmissions.setId(submissions.getId());
-                itemSubmissions.setStarCount((int) mark);
-                itemSubmissions.setScore(getScore(mark, submissions.getEvaluateMark()));
-                evaluateMap.put(position, itemSubmissions);
+                evaluateMap.put(position, (int) mark);
                 if (scoreChangeListener != null) {
                     scoreChangeListener.scoreChange(evaluateMap);
                 }
             }
         });
-        if (state != null && state.equals("return")) {
-            ratingBar.setCanEdit(false);
-            ratingBar.setStarMark(0);
-        } else {
+        if (enable) {
             ratingBar.setCanEdit(true);
-            ratingBar.setStarMark((float) submissions.getScore());
+        } else {
+            ratingBar.setCanEdit(false);
         }
+        ratingBar.setStarMark((float) submissions.getScore());
+        evaluateMap.put(position, (int) submissions.getScore());
     }
 
     @Override
@@ -69,13 +59,7 @@ public class EvaluateItemAdapter extends BaseArrayRecyclerAdapter<EvaluateItemSu
         return R.layout.teacher_evaluate_list_item;
     }
 
-    private int getScore(float mark, double score) {
-        BigDecimal b = new BigDecimal(mark * score / 5);
-        int count = (int) b.setScale(0, BigDecimal.ROUND_HALF_UP).floatValue();
-        return count;
-    }
-
     public interface ScoreChangeListener {
-        void scoreChange(ArrayMap<Integer, EvaluateItemSubmissions> evaluateMap);
+        void scoreChange(ArrayMap<Integer, Integer> evaluateMap);
     }
 }
